@@ -1,0 +1,278 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #00f0ff;
+  --color-secondary: #8b5cf6;
+  --color-success: #10b981;
+  --color-background: #020204;
+  --color-text-primary: #f4f4f5; /* zinc-100 */
+  --color-text-secondary: #64748b; /* slate-500 */
+  
+  --font-geist: var(--font-geist), sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+
+  --radius-sm: 0.125rem;
+  --radius-default: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+}
+
+:root {
+  --background: #020204;
+  --foreground: #f4f4f5;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Antigravity Glass Panels */
+.glass-panel-heavy {
+  background: rgba(12, 15, 22, 0.86);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.24);
+  border-radius: 1rem;
+}
+
+.glass-panel {
+  background: rgba(15, 18, 26, 0.78);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.85rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+}
+
+.glass-panel-l2 {
+  background: rgba(18, 22, 31, 0.78);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.95rem;
+}
+
+.clean-card {
+  background: rgba(11, 14, 20, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.25);
+  border-radius: 1.25rem;
+}
+
+/* Terminal Panes */
+.terminal-pane {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  font-family: var(--font-mono);
+}
+
+/* Button Classes */
+.btn-primary {
+  background-color: #00f0ff;
+  color: #020204;
+  font-family: var(--font-geist);
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-primary:hover {
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: scale(0.96);
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.8);
+}
+
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #00f0ff;
+  font-family: var(--font-geist);
+  font-weight: 650;
+  border-radius: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.4);
+  transform: translateY(-1px);
+}
+.btn-secondary:active {
+  transform: scale(0.96);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-family: var(--font-geist);
+  transition: all 0.2s ease-in-out;
+  border-radius: 0.5rem;
+}
+.btn-ghost:hover {
+  color: #f4f4f5;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Input Fields */
+.glass-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  color: #f4f4f5;
+  padding: 0.75rem 1rem;
+  caret-color: #00f0ff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-input:focus {
+  outline: none;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+}
+
+/* Custom Range Slider Controls with Neon Traces */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(255, 255, 255, 0.1);
+  height: 2px; /* thinner for ambient neon path */
+  border-radius: 9999px;
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.5);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -5px;
+  background-color: #00f0ff;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.8), 0 0 5px #fff;
+  transition: transform 0.1s ease, box-shadow 0.2s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 1), 0 0 10px #fff;
+}
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(0.9);
+}
+
+/* Glowing Neon Borders */
+.neon-border-cyan {
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+}
+.neon-border-violet {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+/* Glow Utilities */
+.neon-cyan-glow {
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+}
+.neon-violet-glow {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+}
+
+/* Text Gradient Utilities */
+.text-neon-cyan {
+  color: #00f0ff;
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #00f0ff 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Data Stream Animation */
+@keyframes data-stream {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+.animate-data-stream {
+  animation: data-stream 1s ease-in-out;
+}
+
+/* Antigravity Pulsing Dot */
+@keyframes pulse-cyan {
+  0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.5); }
+  70% { box-shadow: 0 0 0 15px rgba(0, 240, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
+}
+
+.pulsing-dot {
+  background-color: #00f0ff;
+  animation: pulse-cyan 2s infinite;
+}
+
+/* Hardware HUD Line */
+.hardware-hud-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.5), transparent);
+  position: relative;
+}
+.hardware-hud-line::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+}
+
+/* Node pulsing visual styles */
+@keyframes dash {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+.timeline-pulse-path {
+  stroke-dasharray: 8, 4;
+  animation: dash 2s linear infinite;
+}
