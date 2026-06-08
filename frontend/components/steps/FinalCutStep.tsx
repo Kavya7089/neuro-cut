@@ -38,6 +38,9 @@ interface FinalCutStepProps {
   onFastReRender: () => void;
   reRendering: boolean;
   onBackStep: () => void;
+  loadedUrls: Record<number, string>;
+  videoUrl?: string;
+  jobId?: string;
 }
 
 export default function FinalCutStep({
@@ -64,6 +67,9 @@ export default function FinalCutStep({
   onFastReRender,
   reRendering,
   onBackStep,
+  loadedUrls,
+  videoUrl,
+  jobId,
 }: FinalCutStepProps) {
 
   const [isPlaying, setIsPlaying] = useState(true);
@@ -71,6 +77,7 @@ export default function FinalCutStep({
   const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
   const [totalDuration, setTotalDuration] = useState(6.0);
   const [isDeckOpen, setIsDeckOpen] = useState(true); // Collapsible drawer
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     if (storyboardData.length > 0) {
@@ -186,9 +193,20 @@ export default function FinalCutStep({
       <div className="glass-panel-heavy p-6 sm:p-8 relative overflow-hidden shadow-2xl text-center">
         
         <div className="flex justify-between items-center mb-2">
-          <span className="text-[9px] font-mono text-zinc-500 uppercase bg-zinc-950 border border-white/5 px-2 py-0.5 rounded">
-            16:9 Cinematic Cut
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] font-mono text-zinc-500 uppercase bg-zinc-950 border border-white/5 px-2 py-0.5 rounded">
+              16:9 Cinematic Cut
+            </span>
+            {videoUrl && !videoError && (
+              <a
+                href={videoUrl}
+                download={`neurocut-${jobId || "video"}.mp4`}
+                className="text-[10px] font-mono font-bold text-cyan-400 hover:text-cyan-300 bg-cyan-950/80 border border-cyan-800/40 px-2 py-0.5 rounded transition duration-200"
+              >
+                Download Video (.mp4)
+              </a>
+            )}
+          </div>
           <span className="text-xs font-black text-zinc-300 uppercase tracking-widest font-mono">
             {palette.label}
           </span>
@@ -209,12 +227,23 @@ export default function FinalCutStep({
             </div>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-              <img 
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/api/v1/image?prompt=${encodeURIComponent(activeScene.style_prompt_override || activeScene.script_segment || "watercolor cinematic Tech")}`} 
-                alt="Active scene preview"
-                className={`absolute inset-0 w-full h-full object-cover transition-all transform ${getCameraEasingStyle()}`} 
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/60 pointer-events-none" />
+              {videoUrl && !videoError ? (
+                <video 
+                  src={videoUrl}
+                  controls
+                  className="absolute inset-0 w-full h-full object-cover z-10"
+                  onError={() => setVideoError(true)}
+                />
+              ) : (
+                <>
+                  <img 
+                    src={loadedUrls[currentSceneIdx + 1] || `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/api/v1/image?prompt=${encodeURIComponent(activeScene.style_prompt_override || activeScene.script_segment || "watercolor cinematic Tech")}`} 
+                    alt="Active scene preview"
+                    className={`absolute inset-0 w-full h-full object-cover transition-all transform ${getCameraEasingStyle()}`} 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/60 pointer-events-none" />
+                </>
+              )}
               
               {/* Vector Grid Overlay */}
               <div className="absolute inset-0 opacity-10 pointer-events-none">

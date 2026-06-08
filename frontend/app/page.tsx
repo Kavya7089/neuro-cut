@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Sparkles, Film, Activity, Globe, ShieldCheck, Bell, Settings, User, Plus, CheckCircle2, ChevronRight, Play 
+  Sparkles, Film, Activity, Globe, ShieldCheck, Bell, Settings, User, Plus, CheckCircle2, ChevronRight, Play, X, RefreshCw 
 } from "lucide-react";
 import BackgroundPhysics from "@/components/BackgroundPhysics";
 import PipelineHUD from "@/components/PipelineHUD";
@@ -74,6 +74,159 @@ export default function Dashboard() {
   });
   const [storyboardData, setStoryboardData] = useState<any[]>(FALLBACK_STORYBOARD);
   const [assetImages, setAssetImages] = useState<any[]>(FALLBACK_ASSETS);
+  const [loadedUrls, setLoadedUrls] = useState<Record<number, string>>({});
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [userSession, setUserSession] = useState<{ token: string, email: string } | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authTab, setAuthTab] = useState<"signin" | "signup">("signin");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [userJobsHistory, setUserJobsHistory] = useState<any[]>([]);
+  const [currentThreadId, setCurrentThreadId] = useState<string>("default_thread_1");
+
+  useEffect(() => {
+    const token = localStorage.getItem("neurocut_token");
+    const email = localStorage.getItem("neurocut_email");
+    if (token && email) {
+      setUserSession({ token, email });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userSession) {
+      fetchUserJobsHistory();
+    } else {
+      setUserJobsHistory([]);
+    }
+  }, [userSession]);
+
+  const fetchUserJobsHistory = async () => {
+    if (!userSession) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/v1/jobs`, {
+        headers: {
+          "Authorization": `Bearer ${userSession.token}`
+        }
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        setUserJobsHistory(data.jobs || []);
+      }
+    } catch (err) {
+      console.error("Error fetching jobs history:", err);
+    }
+  };
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    const endpoint = authTab === "signin" ? "/api/v1/auth/signin" : "/api/v1/auth/signup";
+    
+    try {
+      const res = await fetch(`${BACKEND_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: authEmail, password: authPassword })
+      });
+      const data = await res.json();
+      
+      if (res.status === 200 && data.status === "success") {
+        if (authTab === "signin") {
+          const session = data.data.session;
+          localStorage.setItem("neurocut_token", session.access_token);
+          localStorage.setItem("neurocut_email", session.user.email);
+          setUserSession({ token: session.access_token, email: session.user.email });
+          setSuccessToast("Signed in successfully.");
+        } else {
+          setSuccessToast("Account created! Please Sign In.");
+          setAuthTab("signin");
+        }
+        setShowAuthModal(false);
+        setAuthEmail("");
+        setAuthPassword("");
+      } else {
+        setSuccessToast(data.detail || "Authentication failed.");
+      }
+    } catch (err) {
+      setSuccessToast("Connection error. Using offline auth.");
+      setTimeout(() => {
+        if (authTab === "signin") {
+          const mockToken = `mock-token-${authEmail}`;
+          localStorage.setItem("neurocut_token", mockToken);
+          localStorage.setItem("neurocut_email", authEmail);
+          setUserSession({ token: mockToken, email: authEmail });
+          setSuccessToast("Signed in locally.");
+        } else {
+          setSuccessToast("Local account created!");
+          setAuthTab("signin");
+        }
+        setShowAuthModal(false);
+        setAuthEmail("");
+        setAuthPassword("");
+      }, 1000);
+    } finally {
+      setAuthLoading(false);
+      setTimeout(() => setSuccessToast(""), 3000);
+    }
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("neurocut_token");
+    localStorage.removeItem("neurocut_email");
+    setUserSession(null);
+    setSuccessToast("Signed out successfully.");
+    setTimeout(() => setSuccessToast(""), 2500);
+    
+    // Reset workspace state back to default
+    setCurrentStep(1);
+    setPipelineState("idle");
+    setScriptText("");
+    setCurrentThreadId("default_thread_1");
+    setVideoUrl("");
+  };
+
+  const handleLoadHistoricalJob = async (jobId: string) => {
+    setPipelineState("running");
+    setCurrentThreadId(jobId);
+    try {
+      const headers: Record<string, string> = {};
+      if (userSession) {
+        headers["Authorization"] = `Bearer ${userSession.token}`;
+      }
+      const res = await fetch(`${BACKEND_URL}/api/v1/status/${jobId}`, { headers });
+      const data = await res.json();
+      if (data.state) {
+        const state = data.state;
+        setScriptText(state.raw_script || "");
+        const scriptData = state.script_data || { hook: "", body: "" };
+        setScriptGateData(scriptData);
+        setStoryboardData(state.storyboard || []);
+        setAssetImages(state.asset_images || []);
+        if (state.video_url) {
+          setVideoUrl(state.video_url);
+        } else {
+          setVideoUrl("");
+        }
+        
+        const status = state.status || "idle";
+        let step = 1;
+        if (status === "gate1_script" || status === "gate1_script_approved") step = 2;
+        else if (status === "gate2_storyboard") step = 3;
+        else if (status === "gate3_assets" || status === "synthesizing") step = 4;
+        else if (status === "completed") step = 5;
+        
+        setPipelineState(status);
+        setCurrentStep(step);
+        setSuccessToast("Workflow resumed successfully.");
+        setTimeout(() => setSuccessToast(""), 2000);
+      }
+    } catch (err) {
+      console.error("Error loading historical job:", err);
+      setSuccessToast("Failed to load historical production.");
+      setTimeout(() => setSuccessToast(""), 3000);
+    }
+  };
 
   // Playback control dials
   const [audioVolume, setAudioVolume] = useState(65);
@@ -99,11 +252,18 @@ export default function Dashboard() {
     setPipelineState("running");
     setModerationState("analyzing");
 
+    const nextThreadId = userSession ? `thread_${Date.now()}_${Math.floor(Math.random()*1000)}` : "default_thread_1";
+    setCurrentThreadId(nextThreadId);
+
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (userSession) {
+        headers["Authorization"] = `Bearer ${userSession.token}`;
+      }
       const res = await fetch(`${BACKEND_URL}/api/v1/generate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ raw_script: scriptText, art_style: selectedArtStyle, thread_id: "default_thread_1" })
+        headers,
+        body: JSON.stringify({ raw_script: scriptText, art_style: selectedArtStyle, thread_id: nextThreadId })
       });
       
       const data = await res.json();
@@ -167,15 +327,62 @@ export default function Dashboard() {
     }
   };
 
+  const handleRegenerateScript = async () => {
+    try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (userSession) {
+        headers["Authorization"] = `Bearer ${userSession.token}`;
+      }
+      const res = await fetch(`${BACKEND_URL}/api/v1/enhance-script`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ raw_script: scriptText })
+      });
+      const data = await res.json();
+      if (data.status === "success" && data.script_data) {
+        setSuccessToast("Script regenerated successfully.");
+        setTimeout(() => setSuccessToast(""), 2000);
+        return data.script_data;
+      }
+      throw new Error(data.detail || "Failed to regenerate script");
+    } catch (err) {
+      console.warn("Backend offline or error. Using local fallback generator.");
+      // Frontend fallback script generation
+      const prefixes = [
+        "🔥 ATTENTION: ",
+        "🚀 BREAKING: ",
+        "💡 Did you know? ",
+        "✨ STOP SCROLLING! ",
+        "⭐ ALERT: "
+      ];
+      const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+      
+      const sentences = scriptText.split(". ");
+      const hookText = sentences[0] ? `${randomPrefix}${sentences[0]}` : "NeuroCut Production Studio";
+      const bodyText = sentences.slice(1).join(". ") || "Experience the next generation of creative AI automation.";
+      
+      setSuccessToast("Script regenerated locally (offline).");
+      setTimeout(() => setSuccessToast(""), 2000);
+      return {
+        hook: hookText,
+        body: bodyText
+      };
+    }
+  };
+
   // Step 2 approved -> Step 3 Storyboard
   const handleApproveGate1 = async () => {
     setPipelineState("running");
 
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (userSession) {
+        headers["Authorization"] = `Bearer ${userSession.token}`;
+      }
       const res = await fetch(`${BACKEND_URL}/api/v1/approve`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thread_id: "default_thread_1", state_updates: { script_data: scriptGateData } })
+        headers,
+        body: JSON.stringify({ thread_id: currentThreadId, state_updates: { script_data: scriptGateData } })
       });
       const data = await res.json();
       
@@ -214,10 +421,14 @@ export default function Dashboard() {
     setPipelineState("running");
 
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (userSession) {
+        headers["Authorization"] = `Bearer ${userSession.token}`;
+      }
       const res = await fetch(`${BACKEND_URL}/api/v1/approve`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thread_id: "default_thread_1", state_updates: { storyboard: storyboardData } })
+        headers,
+        body: JSON.stringify({ thread_id: currentThreadId, state_updates: { storyboard: storyboardData } })
       });
       const data = await res.json();
 
@@ -291,14 +502,21 @@ export default function Dashboard() {
     setPipelineState("synthesizing");
 
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (userSession) {
+        headers["Authorization"] = `Bearer ${userSession.token}`;
+      }
       const res = await fetch(`${BACKEND_URL}/api/v1/approve`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thread_id: "default_thread_1" })
+        headers,
+        body: JSON.stringify({ thread_id: currentThreadId })
       });
       const data = await res.json();
       
       setPipelineState(data.state?.status || "synthesizing");
+      if (data.state?.video_url) {
+        setVideoUrl(data.state.video_url);
+      }
       setSuccessToast("Video Synthesized Successfully!");
       setTimeout(() => {
         setSuccessToast("");
@@ -309,6 +527,7 @@ export default function Dashboard() {
       // Fallback
       setTimeout(() => {
         setPipelineState("completed");
+        setVideoUrl("");
         setSuccessToast("Video Synthesized Successfully!");
         setTimeout(() => {
           setSuccessToast("");
@@ -431,7 +650,7 @@ export default function Dashboard() {
 
       {/* Left Sidebar */}
       <aside className="w-60 border-r border-white/10 bg-zinc-950/90 backdrop-blur-xl flex flex-col justify-between p-5 shrink-0 relative z-30 min-h-screen shadow-[10px_0_40px_rgba(0,0,0,0.25)]">
-        <div className="space-y-5">
+        <div className="space-y-5 flex flex-col h-[calc(100%-60px)]">
           
           {/* Logo Branding */}
           <div className="flex items-center gap-2.5">
@@ -440,6 +659,34 @@ export default function Dashboard() {
               NeuroCut
             </span>
           </div>
+
+          {/* User Signin Profile Card */}
+          {userSession ? (
+            <div className="bg-white/5 border border-white/5 p-2.5 rounded-xl flex items-center justify-between gap-1.5 overflow-hidden">
+              <div className="flex items-center gap-2 max-w-[120px]">
+                <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
+                  {userSession.email[0].toUpperCase()}
+                </div>
+                <div className="text-left truncate">
+                  <span className="text-[8px] text-zinc-500 font-mono uppercase tracking-wider block leading-none">Logged In</span>
+                  <span className="text-[10px] text-zinc-300 font-bold block truncate leading-tight mt-0.5" title={userSession.email}>{userSession.email}</span>
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="text-[9px] font-mono text-zinc-505 hover:text-rose-400 border border-transparent hover:border-rose-500/10 px-1.5 py-0.5 rounded transition duration-200 shrink-0"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={() => setShowAuthModal(true)}
+              className="w-full flex items-center justify-center gap-2 h-8 py-2 btn-primary text-[10px] rounded-xl transition duration-200 active:scale-[0.96] neon-cyan-glow cursor-pointer"
+            >
+              Sign In / Sign Up
+            </button>
+          )}
 
           {/* Forge Status Widget */}
           <div className="bg-white/5 border border-white/5 p-3 rounded-lg flex items-center gap-3">
@@ -453,7 +700,7 @@ export default function Dashboard() {
           </div>
 
           {/* Vertical Navigation Steps */}
-          <nav className="flex flex-col gap-2">
+          <nav className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
             {[
               { step: 1, label: "Ingestion", id: "ingestion" },
               { step: 2, label: "Scripting", id: "scripting" },
@@ -470,7 +717,6 @@ export default function Dashboard() {
                   onClick={() => {
                     if (item.step < currentStep) {
                       setCurrentStep(item.step);
-                      // Sync pipeline status backwards if clicked
                       const prevStatuses: Record<number, typeof pipelineState> = {
                         1: "idle",
                         2: "gate1_script",
@@ -481,7 +727,7 @@ export default function Dashboard() {
                     }
                   }}
                   disabled={item.step > currentStep}
-                  className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm transition-all duration-300 hover:translate-x-0.5 active:scale-[0.98] ${
+                  className={`flex items-center justify-between px-4 py-2 rounded-xl text-xs transition-all duration-300 hover:translate-x-0.5 active:scale-[0.98] ${
                     isActive 
                       ? "bg-primary/10 border border-primary/25 text-primary font-bold shadow-[0_0_12px_rgba(6,182,212,0.08)]" 
                       : isCompleted 
@@ -507,15 +753,42 @@ export default function Dashboard() {
             })}
           </nav>
 
+          {/* User Run History Panel */}
+          {userSession && userJobsHistory.length > 0 && (
+            <div className="pt-3 border-t border-white/5 text-left flex-1 flex flex-col min-h-0">
+              <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold font-mono px-1">
+                Runs History
+              </span>
+              <div className="flex flex-col gap-1 mt-2 overflow-y-auto flex-1 pr-1">
+                {userJobsHistory.map((job) => (
+                  <button
+                    key={job.id}
+                    onClick={() => handleLoadHistoricalJob(job.id)}
+                    className={`text-[10px] py-1.5 px-2.5 rounded-lg text-left truncate transition duration-200 border ${
+                      currentThreadId === job.id
+                        ? "bg-primary/15 border-primary/30 text-primary font-bold"
+                        : "border-transparent text-zinc-400 hover:text-cyan-400 hover:bg-white/5"
+                    }`}
+                    title={job.script}
+                  >
+                    🎬 {job.script}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* Bottom controls */}
-        <div className="space-y-3 h-10 pt-4 border-t border-white/5">
+        <div className="space-y-3 h-10 pt-4 border-t border-white/5 shrink-0">
           <button 
             onClick={() => {
               setCurrentStep(1);
               setPipelineState("idle");
               setScriptText("");
+              setCurrentThreadId("default_thread_1");
+              setVideoUrl("");
             }}
             className="w-full flex items-center justify-center gap-5 h-8 py-5 btn-secondary text-xs rounded-xl transition active:scale-[0.96]"
           >
@@ -552,6 +825,7 @@ export default function Dashboard() {
                   onApproveGate1={handleApproveGate1}
                   onBackStep={handleBackStep}
                   pipelineState={pipelineState}
+                  onRegenerateScript={handleRegenerateScript}
                 />
               </motion.div>
             )}
@@ -590,6 +864,8 @@ export default function Dashboard() {
                   pipelineState={pipelineState}
                   selectedArtStyle={selectedArtStyle}
                   onUpdateAssetPrompt={handleUpdateAssetPrompt}
+                  loadedUrls={loadedUrls}
+                  setLoadedUrls={setLoadedUrls}
                 />
               </motion.div>
             )}
@@ -626,6 +902,9 @@ export default function Dashboard() {
                   onFastReRender={handleFastReRender}
                   reRendering={reRendering}
                   onBackStep={handleBackStep}
+                  loadedUrls={loadedUrls}
+                  videoUrl={videoUrl}
+                  jobId={currentThreadId}
                 />
               </motion.div>
             )}
@@ -633,6 +912,81 @@ export default function Dashboard() {
         </main>
 
       </div>
+
+      {/* Supabase Authentication Dialog Modal Overlay */}
+      <AnimatePresence>
+        {showAuthModal && (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-sm bg-zinc-950 border border-white/10 p-6 rounded-2xl shadow-2xl relative"
+            >
+              <button
+                onClick={() => setShowAuthModal(false)}
+                className="absolute top-4 right-4 text-zinc-500 hover:text-white transition"
+              >
+                <X className="w-4.5 h-4.5" />
+              </button>
+              
+              <div className="flex gap-4 border-b border-white/5 pb-2.5 mb-5 font-mono">
+                <button
+                  onClick={() => setAuthTab("signin")}
+                  className={`pb-1 text-xs font-bold uppercase tracking-wider transition ${authTab === "signin" ? "text-primary border-b-2 border-primary" : "text-zinc-500"}`}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => setAuthTab("signup")}
+                  className={`pb-1 text-xs font-bold uppercase tracking-wider transition ${authTab === "signup" ? "text-primary border-b-2 border-primary" : "text-zinc-500"}`}
+                >
+                  Sign Up
+                </button>
+              </div>
+              
+              <form onSubmit={handleAuthSubmit} className="space-y-4 text-left">
+                <div>
+                  <label className="text-[9px] text-zinc-500 block mb-1 uppercase font-mono font-bold">Email Address</label>
+                  <input
+                    type="email"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    required
+                    className="w-full bg-black border border-white/10 focus:border-primary/50 text-zinc-200 text-xs p-2 rounded-lg focus:outline-none transition-colors"
+                    placeholder="name@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-zinc-500 block mb-1 uppercase font-mono font-bold">Password</label>
+                  <input
+                    type="password"
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    required
+                    className="w-full bg-black border border-white/10 focus:border-primary/50 text-zinc-200 text-xs p-2 rounded-lg focus:outline-none transition-colors"
+                    placeholder="••••••••"
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 mt-2 btn-primary text-xs rounded-xl font-bold transition duration-200 active:scale-[0.98] disabled:opacity-50"
+                >
+                  {authLoading ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-black" />
+                  ) : authTab === "signin" ? (
+                    "Sign In to Studio"
+                  ) : (
+                    "Register New Account"
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

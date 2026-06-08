@@ -10,6 +10,7 @@ interface AssetItem {
   id: number;
   prompt: string;
   regenerating: boolean;
+  seed?: number;
 }
 
 interface AssetValidationStepProps {
@@ -20,6 +21,8 @@ interface AssetValidationStepProps {
   pipelineState: "idle" | "running" | "gate1_script" | "gate2_storyboard" | "gate3_assets" | "synthesizing" | "completed";
   selectedArtStyle: string;
   onUpdateAssetPrompt?: (id: number, newPrompt: string) => void;
+  loadedUrls: Record<number, string>;
+  setLoadedUrls: React.Dispatch<React.SetStateAction<Record<number, string>>>;
 }
 
 export default function AssetValidationStep({
@@ -30,13 +33,14 @@ export default function AssetValidationStep({
   pipelineState,
   selectedArtStyle,
   onUpdateAssetPrompt,
+  loadedUrls,
+  setLoadedUrls,
 }: AssetValidationStepProps) {
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState("");
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
-  const [loadedUrls, setLoadedUrls] = useState<Record<number, string>>({});
   const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
   const [failedStates, setFailedStates] = useState<Record<number, boolean>>({});
   const loadedRef = useRef<Record<number, { url: string, blobUrl: string }>>({});
@@ -120,14 +124,7 @@ export default function AssetValidationStep({
     };
   }, [assetImages]);
 
-  // Clean up all object URLs when component unmounts
-  useEffect(() => {
-    return () => {
-      Object.values(loadedRef.current).forEach(item => {
-        URL.revokeObjectURL(item.blobUrl);
-      });
-    };
-  }, []);
+
 
   const handleCopy = (id: number, text: string) => {
     navigator.clipboard.writeText(text);

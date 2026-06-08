@@ -12,6 +12,7 @@ interface ScriptEnhancerStepProps {
   onApproveGate1: () => void;
   onBackStep: () => void;
   pipelineState: "idle" | "running" | "gate1_script" | "gate2_storyboard" | "gate3_assets" | "synthesizing" | "completed";
+  onRegenerateScript?: () => Promise<{ hook: string; body: string }>;
 }
 
 export default function ScriptEnhancerStep({
@@ -20,6 +21,7 @@ export default function ScriptEnhancerStep({
   onApproveGate1,
   onBackStep,
   pipelineState,
+  onRegenerateScript,
 }: ScriptEnhancerStepProps) {
 
   // Local editable text hooks
@@ -51,11 +53,27 @@ export default function ScriptEnhancerStep({
     onApproveGate1();
   };
 
-  const handleRegenScript = () => {
-    // Simulated script re-write
-    setHookText("🚀 STOP SCROLLING! Traditional video editing is dead.");
-    setBodyText("With NeuroCut Multi-Agent framework, models compose, storyboard and render assets in real-time.");
-    setCtaText("Follow to experience the future.");
+  const [isRegenerating, setIsRegenerating] = useState(false);
+
+  const handleRegenScript = async () => {
+    if (onRegenerateScript) {
+      setIsRegenerating(true);
+      try {
+        const result = await onRegenerateScript();
+        setHookText(result.hook);
+        setBodyText(result.body);
+        setCtaText("Tap follow to unlock neuro-cut.");
+      } catch (err) {
+        console.error("Error regenerating script:", err);
+      } finally {
+        setIsRegenerating(false);
+      }
+    } else {
+      // Simulated script re-write
+      setHookText("🚀 STOP SCROLLING! Traditional video editing is dead.");
+      setBodyText("With NeuroCut Multi-Agent framework, models compose, storyboard and render assets in real-time.");
+      setCtaText("Follow to experience the future.");
+    }
   };
 
   return (
@@ -173,10 +191,11 @@ export default function ScriptEnhancerStep({
           <div className="flex gap-4 h-6 ">
             <button
               onClick={handleRegenScript}
-              className="flex items-center gap-2.5 px-6 py-3.5 btn-secondary text-sm rounded transition active:scale-[0.98]"
+              disabled={isRegenerating}
+              className="flex items-center gap-2.5 px-6 py-3.5 btn-secondary text-sm rounded transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
             >
-              <RefreshCw className="w-4 h-4" />
-              Regenerate Script
+              <RefreshCw className={`w-4 h-4 ${isRegenerating ? "animate-spin" : ""}`} />
+              {isRegenerating ? "Regenerating..." : "Regenerate Script"}
             </button>
 
             <button

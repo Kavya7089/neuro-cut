@@ -182,12 +182,44 @@ def render_video_pipeline(self, state: Dict[str, Any]) -> Dict[str, Any]:
         asyncio.run(synthesize_ssml_edge_tts(ssml_string, audio_path))
         audio_paths.append(audio_path)
         
-        # Download image path
+        # Check cache or download/generate image path
         image_path = os.path.join(work_dir, f"image_scene_{idx}.jpg")
-        image_url = scene.get("prompt", "watercolor futuristic deep space")
-        # Handle pollinations.ai encoding
-        encoded_url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(image_url)}?width=1280&height=720&nologo=true"
-        download_asset_image(encoded_url, image_path)
+        image_prompt = scene.get("prompt") or scene.get("style_prompt_override") or "watercolor futuristic deep space"
+        
+        # Check local cache first
+        import hashlib
+        import shutil
+        prompt_hash = hashlib.md5(image_prompt.encode('utf-8')).hexdigest()
+        cache_dir = os.path.join(os.getcwd(), "cache")
+        os.makedirs(cache_dir, exist_ok=True)
+        cache_path = os.path.join(cache_dir, f"{prompt_hash}.webp")
+        
+        if os.path.exists(cache_path):
+            shutil.copy(cache_path, image_path)
+            print(f"[Celery Assets] Reused cached image for scene {idx}: {image_prompt[:30]}...")
+        else:
+            # Try to generate using flux model via g4f (same as proxy)
+            try:
+                from g4f.client import Client
+                client = Client()
+                response = asyncio.run(client.images.async_generate(model='flux', prompt=image_prompt, response_format='url'))
+                if response.data and response.data[0].url:
+                    img_url = response.data[0].url
+                    r = requests.get(img_url, timeout=30)
+                    if r.status_code == 200:
+                        with open(cache_path, "wb") as f:
+                            f.write(r.content)
+                        shutil.copy(cache_path, image_path)
+                        print(f"[Celery Assets] Generated and cached image for scene {idx} using g4f flux model.")
+                    else:
+                        raise Exception("Proxy request failed")
+                else:
+                    raise Exception("No URL returned")
+            except Exception as e:
+                print(f"[Celery Assets g4f failed] {e}. Falling back to pollinations.ai")
+                encoded_url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(image_prompt)}?width=1280&height=720&nologo=true"
+                download_asset_image(encoded_url, image_path)
+        
         image_paths.append(image_path)
     
     # 2. Concat vocals to find duration & alignment

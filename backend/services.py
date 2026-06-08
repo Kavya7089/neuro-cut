@@ -66,9 +66,32 @@ class LLMService:
     def _enhance_script_fallback(self, raw_script: str, error: Any) -> Dict[str, str]:
         print(f"[LLMService] enhance_script failed ({error}), using local fallback.")
         import re
+        import random
         sentences = [s.strip() for s in re.split(r'[.!?\n]', raw_script) if s.strip()]
-        hook = sentences[0] if sentences else "NeuroCut Production Studio"
-        body = ". ".join(sentences[1:]) if len(sentences) > 1 else raw_script
+        
+        # Add some variety in local fallback mode
+        prefixes = [
+            "🔥 ATTENTION: ",
+            "🚀 BREAKING: ",
+            "💡 Did you know? ",
+            "✨ STOP SCROLLING! ",
+            "⭐ ALERT: "
+        ]
+        chosen_prefix = random.choice(prefixes)
+        
+        hook = sentences[0] if sentences else "Traditional video editing is dead."
+        if hook and not any(p in hook for p in prefixes):
+            hook = f"{chosen_prefix}{hook}"
+            
+        body = ". ".join(sentences[1:]) if len(sentences) > 1 else "NeuroCut Multi-Agent Studio simplifies all your video creation needs in real-time."
+        
+        body_tails = [
+            " Composed, storyboarded, and rendered in real-time.",
+            " Experience the next generation of creative AI automation.",
+            " Powered by NeuroCut multi-agent state machines."
+        ]
+        body = body + random.choice(body_tails)
+        
         return {"hook": hook, "body": body}
 
     def generate_storyboard(self, script_data: Dict[str, str], art_style: str) -> StoryboardModel:
