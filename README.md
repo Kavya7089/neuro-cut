@@ -22,7 +22,50 @@ We built NeuroCut to drastically lower the barrier to entry for content creators
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## 🏗️ Architecture Flowchart
+
+```mermaid
+graph TD
+    %% Define Styles
+    classDef user fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff;
+    classDef agent fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff;
+    classDef backend fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff;
+    classDef external fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff;
+
+    User([User Prompt / Script]):::user --> UI[Next.js Frontend]:::user
+    UI --> API[FastAPI Backend]:::backend
+    
+    subgraph "LangGraph Orchestration (HITL)"
+        API --> Orchestrator{State Checkpoint}:::backend
+        Orchestrator -->|Gate 1| ScriptAgent[Scripting Agent<br>LLaMA-3]:::agent
+        ScriptAgent -.->|Approval Needed| UI
+        
+        Orchestrator -->|Gate 2| DirectorAgent[Director Agent<br>LLaMA-3]:::agent
+        DirectorAgent -.->|Approval Needed| UI
+        
+        Orchestrator -->|Gate 3| AssetNode[Asset Generation Node]:::backend
+        AssetNode -.->|Approval Needed| UI
+    end
+
+    subgraph "External Services"
+        ScriptAgent --> Groq[Groq API]:::external
+        DirectorAgent --> Groq
+        AssetNode --> Pollinations[Pollinations.ai / g4f]:::external
+    end
+
+    subgraph "Asynchronous Workers (Celery & Redis)"
+        AssetNode --> Worker[Celery Worker]:::backend
+        Worker --> TTS[Edge-TTS<br>Voice Synthesis]:::backend
+        Worker --> Whisper[Faster-Whisper<br>Word-Level Align]:::backend
+        Worker --> FFmpeg[FFmpeg<br>Compositing & Zoom]:::backend
+    end
+
+    FFmpeg --> Output([Final .mp4 Video]):::user
+```
+
+---
+
+## 🛠️ Tech Stack
 
 Our stack is deeply optimized for local execution and zero API costs:
 
