@@ -594,12 +594,12 @@ export default function Dashboard() {
           <PipelineHUD currentStep={currentStep} />
 
           {/* Standalone large hexagon logo */}
-          <div className="mt-8 mb-2 animate-pulse">
-            <NeuroCutLogo size={80} />
+          <div className="mt-2 mb-6 animate-pulse">
+            <NeuroCutLogo size={70} />
           </div>
 
           {/* Centered card content */}
-          <main className="w-full max-w-6xl px-8 md:px-14 flex flex-col justify-center items-center">
+          <main className="w-full max-w-5xl px-4 md:px-8 flex flex-col justify-center items-center">
             <IngestionStep
               scriptText={scriptText}
               setScriptText={setScriptText}

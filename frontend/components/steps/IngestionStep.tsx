@@ -49,7 +49,7 @@ export default function IngestionStep({
       <div className="glass-panel-heavy  sm:p-12 relative overflow-hidden text-left p-10">
         <div className="absolute top-0 right-0 p-30 w-50 h-60 bg-gradient-to-br from-cyan-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
         
-        <div className="flex flex-col gap-2 m-5 p-10 text-center mb-8">
+        <div className="flex flex-col gap-2 text-center mb-8">
           <h2 className="text-2xl font-bold uppercase tracking-wider text-zinc-100 font-geist">
             Ingestion & Setup
           </h2>
@@ -59,7 +59,7 @@ export default function IngestionStep({
         </div>
 
         {/* Script Review Textarea */}
-        <div className="relative space-y-2.5 bg-black/10 p-10 m-10 rounded-xl border border-white/5 hover:border-white/10 transition-colors duration-300">
+        <div className="relative space-y-2.5 bg-black/20 p-6 rounded-xl border border-white/5 hover:border-white/10 transition-colors duration-300">
           <span className="text-[9px] font-mono text-zinc-500 block uppercase font-bold tracking-wider">
             RAW CONTENT PAYLOAD
           </span>
@@ -141,11 +141,11 @@ export default function IngestionStep({
         )}
 
         {/* Action Button */}
-        <div className="mt-6 flex justify-end">
+        <div className="mt-8 flex justify-end">
           <button
             onClick={onStartWorkflow}
             disabled={pipelineState === "running" || !scriptText.trim()}
-            className="flex items-center justify-center gap-2   btn-primary transition duration-200 active:scale-[0.98] disabled:opacity-40 text-sm"
+            className="flex items-center justify-center gap-2 px-6 py-3 btn-primary transition duration-200 active:scale-[0.98] disabled:opacity-40 text-sm"
           >
             {pipelineState === "running" ? (
               <>
