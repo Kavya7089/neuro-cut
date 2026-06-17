@@ -45,18 +45,17 @@ export default function IngestionStep({
       className="w-full max-w-2xl mx-auto mt-8 flex flex-col gap-6 "
     >
       
-      {/* Centered Ingestion Panel */}
-      <div className="glass-panel-heavy  sm:p-12 relative overflow-hidden text-left p-10">
-        <div className="absolute top-0 right-0 p-30 w-50 h-60 bg-gradient-to-br from-cyan-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="flex flex-col gap-2 text-center mb-8">
-          <h2 className="text-2xl font-bold uppercase tracking-wider text-zinc-100 font-geist">
-            Ingestion & Setup
-          </h2>
-          <p className="text-xs text-zinc-500 leading-relaxed">
-            Provide raw script data to initialize the production pipeline.
-          </p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-6">
+        <div>
+          <span className="step-badge mb-2">Step 1 of 5</span>
+          <h2 className="text-2xl font-bold text-zinc-100 font-geist mt-2">Ingestion & Setup</h2>
+          <p className="text-sm text-zinc-500 mt-1">Provide raw script data to initialize the production pipeline.</p>
         </div>
+      </div>
+
+      {/* Centered Ingestion Panel */}
+      <div className="glass-panel-heavy sm:p-12 relative overflow-hidden text-left p-10">
+        <div className="absolute top-0 right-0 p-30 w-50 h-60 bg-gradient-to-br from-cyan-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
         {/* Script Review Textarea */}
         <div className="relative space-y-2.5 bg-black/20 p-6 rounded-xl border border-white/5 hover:border-white/10 transition-colors duration-300">
@@ -93,7 +92,7 @@ export default function IngestionStep({
                     : "border-white/10 bg-zinc-950/40 text-zinc-500 hover:border-emerald-500/30 hover:text-emerald-400 hover:bg-emerald-950/10";
                 } else if (style.id === "pixar") {
                   return isSelected
-                    ? "border-cyan-500/50 bg-cyan-950/20 text-cyan-400 neon-cyan-glow pulsing-dot"
+                    ? "border-cyan-500/50 bg-cyan-950/20 text-gray-800 neon-cyan-glow pulsing-dot"
                     : "border-white/10 bg-zinc-950/40 text-zinc-500 hover:border-cyan-500/30 hover:text-cyan-400 hover:bg-cyan-950/10";
                 } else {
                   return isSelected
@@ -141,21 +140,21 @@ export default function IngestionStep({
         )}
 
         {/* Action Button */}
-        <div className="mt-8 flex justify-end">
+        <div className="mt-8 flex flex-col sm:flex-row justify-end items-center gap-4 border-t border-white/6 pt-5">
           <button
             onClick={onStartWorkflow}
             disabled={pipelineState === "running" || !scriptText.trim()}
-            className="flex items-center justify-center gap-2 px-6 py-3 btn-primary transition duration-200 active:scale-[0.98] disabled:opacity-40 text-sm"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 btn-primary transition duration-200 active:scale-[0.98] disabled:opacity-40 text-sm rounded-xl"
           >
             {pipelineState === "running" ? (
               <>
-                <RefreshCw className="w-6 h-6 animate-spin text-black" />
+                <RefreshCw className="w-5 h-5 animate-spin text-black" />
                 Initializing Pipeline...
               </>
             ) : (
               <>
                 Initialize Pipeline
-                <ArrowRight className="w-6  h-6 text-black" />
+                <ArrowRight className="w-5 h-5 text-black" />
               </>
             )}
           </button>

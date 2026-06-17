@@ -189,8 +189,16 @@ export default function FinalCutStep({
   return (
     <div className="w-full max-w-6xl mx-auto mt-6 flex flex-col gap-6">
       
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-6">
+        <div>
+          <span className="step-badge mb-2">Step 5 of 5</span>
+          <h2 className="text-2xl font-bold text-zinc-100 font-geist mt-2">Final Cut</h2>
+          <p className="text-sm text-zinc-500 mt-1">Preview, customize captions, and export your video</p>
+        </div>
+      </div>
+
       {/* Centered Large Cinematic Floating Player Card */}
-      <div className="glass-panel-heavy p-6 sm:p-8 relative overflow-hidden shadow-2xl text-center">
+      <div className="glass-panel-heavy p-6 sm:p-8 relative overflow-hidden shadow-2xl text-left">
         
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2">
@@ -529,12 +537,12 @@ export default function FinalCutStep({
       </div>
 
       {/* Back button */}
-      <div className="flex justify-start">
+      <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-white/6 pt-5">
         <button
           onClick={onBackStep}
-          className="flex items-center gap-1.5 px-4 py-2 btn-secondary text-xs rounded transition active:scale-[0.98]"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 btn-secondary text-sm rounded-xl transition active:scale-[0.98]"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
+          <ArrowLeft className="w-4 h-4" />
           Back to Asset Validation
         </button>
       </div>

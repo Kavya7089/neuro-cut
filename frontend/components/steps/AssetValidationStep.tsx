@@ -203,21 +203,23 @@ export default function AssetValidationStep({
         )}
       </AnimatePresence>
 
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-6">
+        <div>
+          <span className="step-badge mb-2">Step 4 of 5</span>
+          <h2 className="text-2xl font-bold text-zinc-100 font-geist mt-2">Asset Validation</h2>
+          <p className="text-sm text-zinc-500 mt-1">Review generated frames and refine prompts before synthesis</p>
+        </div>
+        <div className="flex gap-4 text-xs text-zinc-500">
+          <div className="flex items-center gap-1.5 bg-white/4 border border-white/6 px-3 py-1.5 rounded-lg text-emerald-400">
+             <Check className="w-3.5 h-3.5" />
+             <span>{assetImages.length}/{assetImages.length} Validated</span>
+          </div>
+        </div>
+      </div>
+
       {/* Main Asset Validation Panel */}
       <div className="glass-panel-heavy p-8 sm:p-10 relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="flex flex-col items-center text-center gap-1.5 mb-4">
-          <div className="p-3.5 rounded bg-primary/10 border border-primary/20 text-primary">
-            <ImageIcon className="w-6 h-6" />
-          </div>
-          <h2 className="text-xl font-black uppercase tracking-wider text-zinc-200 font-geist">
-            Agent 3: Asset Validation Forger
-          </h2>
-          <p className="text-xs text-zinc-500 max-w-md">
-            Review and validate AI visual assets (Human-in-the-Loop Gate 3). Hover over any frame to regenerate or fix assets individually.
-          </p>
-        </div>
 
         {/* Grid display of frame thumbnails with visual prompts aligned below */}
         <div className="grid grid-cols-2 md:grid-cols-2 gap-4 text-left">
@@ -374,30 +376,22 @@ export default function AssetValidationStep({
         </div>
 
         {/* Action Controls / Bottom Validation Status Bar */}
-        <div className="mt-5 flex flex-col sm:flex-row justify-between items-center gap-3 border-t border-white/5 pt-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onBackStep}
-              className="flex items-center gap-1.5 px-4 py-2 btn-secondary text-xs rounded transition active:scale-[0.98]"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Back
-            </button>
-
-            {/* Ready for Synthesis Badge */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[10px] font-mono font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>{assetImages.length}/{assetImages.length} Scenes Validated • 4K • 60fps</span>
-            </div>
-          </div>
+        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-white/5 pt-5">
+          <button
+            onClick={onBackStep}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 btn-secondary text-sm rounded-xl transition active:scale-[0.98]"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
 
           <button
             onClick={onApproveGate3}
             disabled={pipelineState === "synthesizing"}
-            className="flex items-center gap-1.5 px-5 py-2 btn-primary text-xs rounded transition duration-200 active:scale-[0.98]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 btn-primary text-sm rounded-xl transition duration-200 active:scale-[0.98] disabled:opacity-40"
           >
-            <Check className="w-3.5 h-3.5 stroke-[2.5px] text-black" />
-            Approve Assets & Synthesize Video
+            <Check className="w-4 h-4 stroke-[2.5px] text-black" />
+            Synthesize Video
           </button>
         </div>
 

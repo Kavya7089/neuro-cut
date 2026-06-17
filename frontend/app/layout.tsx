@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full scroll-smooth">
       <body
-        className={`${geist.variable} ${inter.variable} ${jetbrainsMono.variable} min-h-full flex flex-col bg-[#09090b] text-[#e5e1e4] antialiased select-none font-inter`}
+        className={`${geist.variable} ${inter.variable} ${jetbrainsMono.variable} min-h-full flex flex-col bg-[#08080c] text-zinc-100 antialiased font-inter`}
       >
         {children}
       </body>

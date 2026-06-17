@@ -53,21 +53,23 @@ export default function DirectorStep({
   return (
     <div className="w-full max-w-6xl mx-auto mt-10 flex flex-col gap-8">
       
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-6">
+        <div>
+          <span className="step-badge mb-2">Step 3 of 5</span>
+          <h2 className="text-2xl font-bold text-zinc-100 font-geist mt-2">Storyboard Director</h2>
+          <p className="text-sm text-zinc-500 mt-1">Review scenes, adjust camera moves, and edit visual prompts</p>
+        </div>
+        <div className="flex gap-4 text-xs text-zinc-500">
+          <div className="flex items-center gap-1.5 bg-white/4 border border-white/6 px-3 py-1.5 rounded-lg text-emerald-400">
+             <Check className="w-3.5 h-3.5" />
+             <span>{storyboardData.length} Scenes Generated</span>
+          </div>
+        </div>
+      </div>
+
       {/* Storyboard Container Panel */}
       <div className="glass-panel-heavy p-8 sm:p-10 relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="flex flex-col items-center text-center gap-1.5 mb-6">
-          <div className="p-3.5 rounded bg-primary/10 border border-primary/20 text-primary">
-            <Film className="w-6 h-6" />
-          </div>
-          <h2 className="text-xl font-black uppercase tracking-wider text-zinc-200 font-geist">
-            Agent 2: Storyboard Director
-          </h2>
-          <p className="text-xs text-zinc-500 max-w-md">
-            Review and adjust AI-generated visual prompts and camera easing parameters (Human-in-the-Loop Gate 2). Click a card to set it active and edit its visual prompt.
-          </p>
-        </div>
 
         {/* Storyboard Scenes Grid */}
         <div className="flex flex-row gap-5 overflow-x-auto pb-5 pt-2 text-left scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
@@ -171,10 +173,10 @@ export default function DirectorStep({
         </div>
 
         {/* Action Controls */}
-        <div className="mt-6 flex justify-between items-center border-t border-white/5 pt-5">
+        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-white/5 pt-5">
           <button
             onClick={onBackStep}
-            className="flex items-center gap-2 px-6 py-3.5 btn-secondary text-sm rounded transition active:scale-[0.98]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 btn-secondary text-sm rounded-xl transition active:scale-[0.98]"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -183,7 +185,7 @@ export default function DirectorStep({
           <button
             onClick={onApproveGate2}
             disabled={pipelineState === "running"}
-            className="flex items-center gap-2 px-8 py-3.5 btn-primary text-sm rounded transition duration-200 active:scale-[0.98] disabled:opacity-40"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 btn-primary text-sm rounded-xl transition duration-200 active:scale-[0.98] disabled:opacity-40"
           >
             {pipelineState === "running" ? (
               <>
@@ -193,7 +195,7 @@ export default function DirectorStep({
             ) : (
               <>
                 <Check className="w-4 h-4 stroke-[2.5px] text-black" />
-                Approve Storyboard & Forge Assets
+                Approve & Forge Assets
               </>
             )}
           </button>

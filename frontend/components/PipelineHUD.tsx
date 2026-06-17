@@ -24,7 +24,7 @@ export default function PipelineHUD({ currentStep }: PipelineHUDProps) {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        className="glass-panel px-8 py-5 flex flex-wrap justify-center items-center gap-4 sm:gap-6 shadow-xl"
+        className="glass-panel px-4 sm:px-8 py-3 sm:py-4 flex flex-wrap justify-center items-center gap-2 sm:gap-6 shadow-xl"
       >
         
         {PIPELINE_STAGES.map((stage, idx) => {
@@ -36,29 +36,30 @@ export default function PipelineHUD({ currentStep }: PipelineHUDProps) {
               
               {/* Connector line between chips */}
               {idx > 0 && (
-                <div className={`w-4 ${isCompleted || isActive ? 'h-0.5 bg-primary/60' : 'h-px bg-white/10'}`} />
+                <div className={`w-3 sm:w-4 ${isCompleted || isActive ? 'h-0.5 bg-primary/60' : 'h-px bg-white/10'}`} />
               )}
 
               {/* Stage Chip */}
               <div 
-                className={`flex items-center gap-2.5 font-mono text-[10px] sm:text-xs tracking-widest uppercase transition-all duration-300 ${
+                className={`flex items-center gap-1.5 sm:gap-2.5 font-mono text-[10px] sm:text-xs tracking-widest uppercase transition-all duration-300 ${
                   isCompleted 
                     ? "text-success" 
                     : isActive 
                     ? "text-neon-cyan font-bold" 
-                    : "text-zinc-600"
+                    : "text-zinc-650"
                 }`}
               >
                 {/* Status Dot */}
                 {isCompleted ? (
-                  <div className="w-2.5 h-2.5 rounded-[2px] bg-success shadow-[0_0_10px_rgba(16,185,129,0.5)] rotate-45" />
+                  <div className="w-2 h-2 rounded-[2px] bg-success shadow-[0_0_10px_rgba(16,185,129,0.5)] rotate-45" />
                 ) : isActive ? (
-                  <div className="w-2.5 h-2.5 rounded-[2px] bg-primary shadow-[0_0_15px_rgba(0,240,255,0.8)] rotate-45 animate-pulse" />
+                  <div className="w-2 h-2 rounded-[2px] bg-primary shadow-[0_0_15px_rgba(0,240,255,0.8)] rotate-45 animate-pulse" />
                 ) : (
-                  <div className="w-2.5 h-2.5 rounded-[2px] border border-white/10 rotate-45" />
+                  <div className="w-2 h-2 rounded-[2px] border border-white/10 rotate-45" />
                 )}
                 
-                <span>{stage.label}</span>
+                <span className="hidden sm:inline">{stage.label}</span>
+                <span className="inline sm:hidden text-[9px] font-bold">{idx + 1}</span>
               </div>
 
             </React.Fragment>

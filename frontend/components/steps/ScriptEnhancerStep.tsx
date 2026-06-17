@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
+import {
   Sparkles, Check, ArrowRight, ArrowLeft, RefreshCw, Undo, Redo, Compass, AlignLeft, Megaphone, Zap
 } from "lucide-react";
 
@@ -77,62 +77,52 @@ export default function ScriptEnhancerStep({
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto mt-10 flex flex-col gap-8">
-      
-      {/* Workspace Header */}
-      <div className="w-full flex justify-between items-end mb-2">
-        <div className="text-left">
-          <h2 className="text-3xl font-bold uppercase tracking-wider text-zinc-100 font-geist">
-            Script Enhancer
-          </h2>
-          <p className="text-xs text-zinc-500 mt-1">
-            Pipeline Stage 2 / Optimizing semantic structure
-          </p>
+    <div className="w-full max-w-6xl mx-auto flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
+        <div>
+          <span className="step-badge mb-2">Step 2 of 5</span>
+          <h2 className="text-2xl font-bold text-zinc-100 font-geist mt-2">Script Enhancer</h2>
+          <p className="text-sm text-zinc-500 mt-1">Refine your hook, body, and call-to-action</p>
         </div>
-        <div className="flex gap-4 text-[10px] font-mono text-zinc-500 pb-1">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span>Tokens Used: <strong className="text-zinc-300">4,209</strong></span>
+        <div className="flex gap-4 text-xs text-zinc-500">
+          <div className="flex items-center gap-1.5 bg-white/4 border border-white/6 px-3 py-1.5 rounded-lg">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span>4,209 tokens</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-primary" />
-            <span>Model: <strong className="text-zinc-300">Neuro-7B-Instruct</strong></span>
+          <div className="flex items-center gap-1.5 bg-white/4 border border-white/6 px-3 py-1.5 rounded-lg">
+            <Zap className="w-3.5 h-3.5 text-violet-400" />
+            <span>Neuro-7B</span>
           </div>
         </div>
       </div>
- 
-      {/* Script Review Panel */}
-      <div className="glass-panel-heavy p-10 sm:p-10 relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-50 h-50 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-        
-        {/* Top toolbar */}
-        <div className="flex justify-between items-center pb-3 border-b border-white/5 mb-4 text-zinc-500">
-          <div className="flex items-center gap-4">
-            <button className="hover:text-zinc-300 transition"><Undo className="w-4 h-4" /></button>
-            <button className="hover:text-zinc-300 transition"><Redo className="w-4 h-4" /></button>
-            <div className="h-4 w-[1px] bg-white/10" />
-            <span className="text-[10px] font-mono flex items-center gap-1.5 text-primary">
-              <Check className={`w-3 h-3 text-primary ${isSaving ? 'opacity-50' : 'opacity-100'}`} />
+
+      <div className="glass-panel-heavy p-6 sm:p-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-cyan-500/6 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex justify-between items-center pb-4 border-b border-white/6 mb-5">
+          <div className="flex items-center gap-3 text-zinc-500">
+            <button className="p-1.5 hover:text-zinc-300 hover:bg-white/5 rounded-lg transition"><Undo className="w-4 h-4" /></button>
+            <button className="p-1.5 hover:text-zinc-300 hover:bg-white/5 rounded-lg transition"><Redo className="w-4 h-4" /></button>
+            <span className="text-xs flex items-center gap-1.5 text-emerald-400/80">
+              <Check className={`w-3.5 h-3.5 ${isSaving ? "opacity-40" : ""}`} />
               {isSaving ? "Saving..." : "Auto-saved"}
             </span>
           </div>
-          <span className="text-[10px] font-mono uppercase tracking-wider font-bold">
-            Target Length: <strong className="text-primary">60s</strong>
-          </span>
+          <span className="text-xs text-zinc-500">Target: <strong className="text-cyan-400">60s</strong></span>
         </div>
- 
+
         {/* Narrative segments inputs with timeline */}
         <div className="space-y-4 text-left">
-          
-          {/* HOOK block */}
-          <div className="terminal-pane p-3.5 relative overflow-hidden group hover:border-primary/30 transition-all duration-300">
-            <div className={`absolute left-0 top-0 w-1 bg-success h-full ${isSaving ? 'animate-data-stream' : 'opacity-0'}`} />
-            <div className="flex justify-between items-center text-[10px] text-zinc-550 uppercase tracking-widest font-bold mb-2">
-              <span className="text-zinc-300 flex items-center gap-1.5 group-hover:text-primary transition-colors">
-                <Compass className="w-4 h-4 text-primary animate-pulse" />
-                [SYS_HOOK_SEGMENT]
+
+          <div className="terminal-pane p-4 relative overflow-hidden group">
+            <div className={`absolute left-0 top-0 w-0.5 bg-emerald-400 h-full ${isSaving ? "animate-data-stream" : "opacity-0"}`} />
+            <div className="flex justify-between items-center text-xs text-zinc-500 mb-2">
+              <span className="text-zinc-300 flex items-center gap-1.5 font-medium">
+                <Compass className="w-4 h-4 text-cyan-400" />
+                Hook
               </span>
-              <span className="text-zinc-500 bg-zinc-950/60 px-2 py-0.5 rounded border border-white/5">0:00 - 0:05</span>
+              <span className="text-[10px] bg-white/4 px-2 py-0.5 rounded-md">0:00 – 0:05</span>
             </div>
             <input
               type="text"
@@ -141,16 +131,15 @@ export default function ScriptEnhancerStep({
               className="w-full bg-transparent text-sm text-zinc-200 focus:outline-none focus:text-primary caret-primary transition-all duration-300 font-mono"
             />
           </div>
- 
-          {/* BODY block */}
-          <div className="terminal-pane p-3.5 relative overflow-hidden group hover:border-primary/30 transition-all duration-300">
-            <div className={`absolute left-0 top-0 w-1 bg-success h-full ${isSaving ? 'animate-data-stream' : 'opacity-0'}`} />
-            <div className="flex justify-between items-center text-[10px] text-zinc-550 uppercase tracking-widest font-bold mb-2">
-              <span className="text-zinc-300 flex items-center gap-1.5 group-hover:text-primary transition-colors">
+
+          <div className="terminal-pane p-4 relative overflow-hidden group">
+            <div className={`absolute left-0 top-0 w-0.5 bg-emerald-400 h-full ${isSaving ? "animate-data-stream" : "opacity-0"}`} />
+            <div className="flex justify-between items-center text-xs text-zinc-500 mb-2">
+              <span className="text-zinc-300 flex items-center gap-1.5 font-medium">
                 <AlignLeft className="w-4 h-4 text-zinc-400" />
-                [SYS_BODY_NARRATIVE]
+                Body
               </span>
-              <span className="text-zinc-500 bg-zinc-950/60 px-2 py-0.5 rounded border border-white/5">0:05 - 0:45</span>
+              <span className="text-[10px] bg-white/4 px-2 py-0.5 rounded-md">0:05 – 0:45</span>
             </div>
             <textarea
               value={bodyText}
@@ -158,16 +147,15 @@ export default function ScriptEnhancerStep({
               className="w-full h-20 bg-transparent text-sm text-zinc-200 focus:outline-none focus:text-primary caret-primary resize-none leading-relaxed transition-all duration-300 font-mono"
             />
           </div>
- 
-          {/* CALL TO ACTION block */}
-          <div className="terminal-pane p-3.5 relative overflow-hidden group hover:border-primary/30 transition-all duration-300">
-            <div className={`absolute left-0 top-0 w-1 bg-success h-full ${isSaving ? 'animate-data-stream' : 'opacity-0'}`} />
-            <div className="flex justify-between items-center text-[10px] text-zinc-550 uppercase tracking-widest font-bold mb-2">
-              <span className="text-zinc-300 flex items-center gap-1.5 group-hover:text-primary transition-colors">
+
+          <div className="terminal-pane p-4 relative overflow-hidden group">
+            <div className={`absolute left-0 top-0 w-0.5 bg-emerald-400 h-full ${isSaving ? "animate-data-stream" : "opacity-0"}`} />
+            <div className="flex justify-between items-center text-xs text-zinc-500 mb-2">
+              <span className="text-zinc-300 flex items-center gap-1.5 font-medium">
                 <Megaphone className="w-4 h-4 text-zinc-400" />
-                [SYS_CALL_TO_ACTION]
+                Call to Action
               </span>
-              <span className="text-zinc-500 bg-zinc-950/60 px-2 py-0.5 rounded border border-white/5">0:45 - 1:00</span>
+              <span className="text-[10px] bg-white/4 px-2 py-0.5 rounded-md">0:45 – 1:00</span>
             </div>
             <input
               type="text"
@@ -178,41 +166,21 @@ export default function ScriptEnhancerStep({
           </div>
         </div>
 
-        {/* Action Controls */}
-        <div className="mt-6 flex h-10 justify-between items-center border-t border-white/5 pt-5">
-          <button
-            onClick={onBackStep}
-            className="flex items-center gap-2  h-6  btn-secondary text-sm rounded transition active:scale-[0.98]"
-          >
+        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-white/6 pt-5">
+          <button onClick={onBackStep} className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 btn-secondary text-sm rounded-xl">
             <ArrowLeft className="w-4 h-4" />
             Back
           </button>
-
-          <div className="flex gap-4 h-6 ">
-            <button
-              onClick={handleRegenScript}
-              disabled={isRegenerating}
-              className="flex items-center gap-2.5 px-6 py-3.5 btn-secondary text-sm rounded transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-            >
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <button onClick={handleRegenScript} disabled={isRegenerating} className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 btn-secondary text-sm rounded-xl disabled:opacity-50">
               <RefreshCw className={`w-4 h-4 ${isRegenerating ? "animate-spin" : ""}`} />
-              {isRegenerating ? "Regenerating..." : "Regenerate Script"}
+              {isRegenerating ? "Regenerating..." : "Regenerate"}
             </button>
-
-            <button
-              onClick={handleSaveAndApprove}
-              disabled={pipelineState === "running"}
-              className="flex items-center gap-2 px-8 py-3.5 btn-primary text-sm rounded transition duration-200 active:scale-[0.98] disabled:opacity-40"
-            >
+            <button onClick={handleSaveAndApprove} disabled={pipelineState === "running"} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 btn-primary text-sm rounded-xl disabled:opacity-40">
               {pipelineState === "running" ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  Updating...
-                </>
+                <><RefreshCw className="w-4 h-4 animate-spin" />Updating...</>
               ) : (
-                <>
-                  <span>Approve & Proceed to Storyboard</span>
-                  <ArrowRight className="w-4 h-4 stroke-[2.5px] text-black" />
-                </>
+                <>Approve & Continue<ArrowRight className="w-4 h-4" /></>
               )}
             </button>
           </div>
